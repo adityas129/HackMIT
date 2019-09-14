@@ -1,0 +1,22 @@
+{
+  "name": "trial-3",
+  "version": "1.0.0",
+  "description": "test test test ",
+  "main": "app.js",
+  "scripts": {
+    "test": "hello"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adityas129/HackMIT.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adityas129/HackMIT/issues"
+  },
+  "homepage": "https://github.com/adityas129/HackMIT#readme",
+  "dependencies": {
+    "firebase": "^6.6.1"
+  }
+}
