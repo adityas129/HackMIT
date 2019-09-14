@@ -54,14 +54,13 @@ console.log('Server running at http://127.0.0.1:8081/');
 
 var submit = "lorem ipsum";
 
-function writeuserinput(userId, label, label_user, predicted_label) {
-  var read = firebase.database().ref(label).child(label_user);
-  console.log(read);
+function writeuserinput( label, label_user, predicted_label) {
+  var read = firebase.database().ref(label)
+  console.log(read)
   // firebase.database().ref(label).set({
   //   username: label_user,
   //   label_all: label_user,
   //   predicted_labels : predicted_label
   // });
-};
-
+}
 writeuserinput(123, 'label', 'user123', 'prediction' );
