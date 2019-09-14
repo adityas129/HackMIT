@@ -34,7 +34,7 @@ http.createServer(function (request, response) {
    // Send the response body as "Hello World"
    // response.end('Hello World\n');
 
-   fs.readFile('./html_init.html', null, function (error, data) {
+   fs.readFile('./sample_html.html', null, function (error, data) {
         if (error) {
             response.writeHead(404);
             respone.write('Whoops! File not found!');
