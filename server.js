@@ -1,10 +1,11 @@
-var ip_address = '18.20.216.61';
+var ip_address = '10.189.116.192';
 
 var http = require("http");
 var fs = require('fs');
 
 var firebase = require('firebase');
-
+var admin = require('firebase-admin');
+var funcs = require('firebase-functions');
 
 var firebaseConfig = {
   apiKey: "AIzaSyCvIgWTTi16ESUYEhbQlRda9ItjXgvRgyU",
@@ -17,17 +18,32 @@ var firebaseConfig = {
 };
   
 firebase.initializeApp(firebaseConfig);
-var database = firebase.database();
-var ref = database.ref('fruits/');
 
-var data;
-ref.on("value", function(snapshot) {
-  data = snapshot.val();
-  console.log(data);
-}, function (error) {
-  console.log("Error: " + error.code);
-});
-  
+let db = firebase.firestore();
+db.collection('cats').get()
+  .then((snapshot) => {
+    snapshot.forEach((doc) => {
+      console.log(doc.id, '=>', doc.data());
+    });
+  })
+  .catch((err) => {
+    console.log('Error getting documents', err);
+  });
+
+
+
+  //this is how you write to db!!!
+  let docRef = db.collection('cats').doc('writing_first_time');
+  let writing_first_time = docRef.set({
+    'Adi': 'bad',
+    'bad': 15,
+    'good': 10, 
+    predicted_label: 'bad'
+  });  
+
+
+
+
 http.createServer(function (request, response) {
    // Send the HTTP header 
    // HTTP Status: 200 : OK
@@ -51,16 +67,3 @@ http.createServer(function (request, response) {
 
 // Console will print the message
 console.log('Server running at http://127.0.0.1:8081/');
-
-var submit = "lorem ipsum";
-
-function writeuserinput( label, label_user, predicted_label) {
-  var read = firebase.database().ref(label)
-  console.log(read)
-  // firebase.database().ref(label).set({
-  //   username: label_user,
-  //   label_all: label_user,
-  //   predicted_labels : predicted_label
-  // });
-}
-writeuserinput(123, 'label', 'user123', 'prediction' );
