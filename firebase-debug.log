@@ -1,0 +1,28 @@
+[debug] [2019-09-14T17:06:13.108Z] ----------------------------------------------------------------------
+[debug] [2019-09-14T17:06:13.113Z] Command:       /usr/local/Cellar/node/12.8.1/bin/node /usr/local/bin/firebase serve
+[debug] [2019-09-14T17:06:13.113Z] CLI Version:   7.3.2
+[debug] [2019-09-14T17:06:13.113Z] Platform:      darwin
+[debug] [2019-09-14T17:06:13.113Z] Node Version:  v12.8.1
+[debug] [2019-09-14T17:06:13.122Z] Time:          Sat Sep 14 2019 13:06:13 GMT-0400 (Eastern Daylight Time)
+[debug] [2019-09-14T17:06:13.122Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-09-14T17:06:13.144Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-09-14T17:06:13.144Z] > authorizing via signed-in user
+[debug] [2019-09-14T17:06:13.145Z] [iam] checking project minerva-7ae74 for permissions ["firebase.projects.get"]
+[debug] [2019-09-14T17:06:13.148Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/minerva-7ae74:testIamPermissions  
+
+[debug] [2019-09-14T17:06:14.500Z] <<< HTTP RESPONSE 200
+[debug] [2019-09-14T17:06:14.502Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/minerva-7ae74  
+ 
+[debug] [2019-09-14T17:06:15.371Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from '/Users/adityasharma/Desktop/hackmit/HackMIT'...
+[info] 
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "12"
+[info] ✔  functions: Emulator started at http://localhost:5000
+[info] i  functions: Watching "/Users/adityasharma/Desktop/hackmit/HackMIT/functions" for Cloud Functions...
+[debug] [2019-09-14T17:06:16.308Z] [runtime-status] Functions runtime initialized. {"cwd":"/Users/adityasharma/Desktop/hackmit/HackMIT/functions","node_version":"12.8.1"}
+[debug] [2019-09-14T17:06:16.309Z] [runtime-status] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true} {}
+[debug] [2019-09-14T17:06:16.323Z] [runtime-status] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.5.0","resolution":"/Users/adityasharma/Desktop/hackmit/HackMIT/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2019-09-14T17:06:16.338Z] [runtime-status] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.2.0","resolution":"/Users/adityasharma/Desktop/hackmit/HackMIT/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2019-09-14T17:06:16.341Z] [runtime-status] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.2.0","resolution":"/Users/adityasharma/Desktop/hackmit/HackMIT/functions/node_modules/firebase-functions/lib/index.js"}
