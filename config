@@ -1,0 +1,8 @@
+  var firebaseConfig = {
+    apiKey: "AIzaSyCvIgWTTi16ESUYEhbQlRda9ItjXgvRgyU",
+    authDomain: "minerva-7ae74.firebaseapp.com",
+    databaseURL: "https://minerva-7ae74.firebaseio.com",
+    projectId: "minerva-7ae74",
+    storageBucket: "",
+    messagingSenderId: "1018992044633",
+    appId: "1:1018992044633:web:dcdfdb4754bde54e095f48"
