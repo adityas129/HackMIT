@@ -46,40 +46,22 @@ http.createServer(function (request, response) {
         }
         response.end();
     });
-<<<<<<< HEAD
-}).listen(3000);
-=======
+
 }).listen(3000, ip_address);
->>>>>>> e143e26622248efce540446f678336a3ca3d79a9
 
 // Console will print the message
 console.log('Server running at http://127.0.0.1:8081/');
 
-
-var submit = "lorem ipsum"
-
+var submit = "lorem ipsum";
 
 function writeuserinput(userId, label, label_user, predicted_label) {
-  var read = firebase.database().ref(label).child(label_all)
-  console.log(read)
+  var read = firebase.database().ref(label).child(label_user);
+  console.log(read);
   // firebase.database().ref(label).set({
   //   username: label_user,
   //   label_all: label_user,
   //   predicted_labels : predicted_label
   // });
-}
+};
 
-writeuserinput(123, 'label', 'user123', 'prediction' )
-
-
-
-
-{
-  "cat": {"user1": [most_recent_label]
-    
-                                    }
-                                    
-        {label1: 10, label2: 15}
-        
-        {predicted_labels: label3}
-}
+writeuserinput(123, 'label', 'user123', 'prediction' );
