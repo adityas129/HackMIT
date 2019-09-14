@@ -1,3 +1,5 @@
+var ip_address = '18.20.216.61';
+
 var http = require("http");
 var fs = require('fs');
 
@@ -43,7 +45,7 @@ http.createServer(function (request, response) {
         }
         response.end();
     });
-}).listen(3000, '172.16.149.63');
+}).listen(3000, ip_address);
 
 // Console will print the message
 console.log('Server running at http://127.0.0.1:8081/');
