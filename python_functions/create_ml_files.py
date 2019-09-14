@@ -21,11 +21,10 @@ def split_data(data, n=1):
 
 	
 	data_points, labels = zip(*data.items())
-	label_to_number = {label: i for i, label in enumerate(set(labels), 0)}
 
 	#Save dictionary to resolve labels later on 
-	with open(".resolve_labels.pickle", "wb") as f:
-		pickle.dump(label_to_number, f, protocol=pickle.HIGHEST_PROTOCOL)
+	with open(".resolve_labels.pickle", "rb") as handle:
+		label_to_number = pickle.load(handle)
 
 	labels = [label_to_number[label] for label in labels]
 	sss = StratifiedShuffleSplit(n_splits=n, test_size=0.3, random_state=0)
@@ -101,7 +100,19 @@ def create_file(data, filepath):
 
 	return filepath
 
+
+def enumerate_labels(all_labels):
+
+	label_to_number = {label: i for i, label in enumerate(set(all_labels), 0)}
+	#Save dictionary to resolve labels later on 
+	with open(".resolve_labels.pickle", "wb") as f:
+		pickle.dump(label_to_number, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+	return 
+
 if __name__ == "__main__":
+	labels = ["good", "bad"]
+	enumerate_labels(labels)
 	data = {"cat": "good", "dog": "bad", "fish": "good", "moose": "bad"}
 	for x,y in split_data(data):
 		train_file = create_file(x, "train.txt")
