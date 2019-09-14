@@ -3,6 +3,7 @@ var fs = require('fs');
 
 var firebase = require('firebase');
 
+
 var firebaseConfig = {
   apiKey: "AIzaSyCvIgWTTi16ESUYEhbQlRda9ItjXgvRgyU",
   authDomain: "minerva-7ae74.firebaseapp.com",
@@ -43,7 +44,36 @@ http.createServer(function (request, response) {
         }
         response.end();
     });
-}).listen(3000, '172.16.149.63');
+}).listen(3000);
 
 // Console will print the message
 console.log('Server running at http://127.0.0.1:8081/');
+
+
+var submit = "lorem ipsum"
+
+
+function writeuserinput(userId, label, label_user, predicted_label) {
+  var read = firebase.database().ref(label).child(label_all)
+  console.log(read)
+  // firebase.database().ref(label).set({
+  //   username: label_user,
+  //   label_all: label_user,
+  //   predicted_labels : predicted_label
+  // });
+}
+
+writeuserinput(123, 'label', 'user123', 'prediction' )
+
+
+
+
+{
+  "cat": {"user1": [most_recent_label]
+    
+                                    }
+                                    
+        {label1: 10, label2: 15}
+        
+        {predicted_labels: label3}
+}
