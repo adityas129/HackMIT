@@ -153,9 +153,9 @@ def run_all(client):
     Will throw an error if not enough labels in each class.
     """
     files = ["../sanjas/dummy.train", "../sanjas/dummy.test"]
-    
-    for file in files:
-    	if os.path.isfile():
+
+    for file_ in files:
+    	if os.path.isfile(file_):
     		os.remove(file)
 
     data = get_data(client)
