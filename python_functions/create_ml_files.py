@@ -6,8 +6,9 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-
-
+from gensim.utils import simple_preprocess
+import spacy
+nlp = spacy.load('en')
 
 
 def get_data(client):
@@ -122,7 +123,8 @@ def create_file(data, filepath):
 		label = data[data_point]
 		#Data points cannot have new lines for BlazingText input
 		clean_data_point = re.sub(r'\n', " ", data_point)
-
+		clean_data_point = lemmatizer(clean_data_point)
+		clean_data_point = " ".join(simple_preprocess(clean_data_point, deacc=True, min_len=2, max_len=17))
 		line = "__label__{0} {1}".format(str(label), clean_data_point)
 		append_file(filepath, line)
 
@@ -138,6 +140,13 @@ def create_file(data, filepath):
 
 # 	return 
 
+def lemmatizer(text):        
+    sent = []
+    doc = nlp(text)
+    for word in doc:
+        sent.append(word.lemma_)
+    return " ".join(sent)
+
 def run_all(client):
     """Specifications:
     Get all labeled docs and create train and test files from them. 
@@ -148,7 +157,6 @@ def run_all(client):
     for train_data, test_data in split_data(client, data, 1):
 	    train_file = create_file(train_data, "../sanjas/dummy.train")
 	    test_file = create_file(test_data, "../sanjas/dummy.test")
-
 	    print(train_file)
 	    print(test_file)
 
