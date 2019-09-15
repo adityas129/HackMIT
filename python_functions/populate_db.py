@@ -22,6 +22,8 @@ for tweet in data[:30]:
 
 	big_dict["is_labeled"] = False
 	big_dict["predicted_label"] = None
+	big_dict["prediction_confidence"] = None
+	big_dict["similar_docs"] = None
 	big_dict["user_labels"] = None
 	client.collection("data1").add(big_dict)
 
