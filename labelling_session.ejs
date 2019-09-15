@@ -138,35 +138,37 @@ console.log("sadfjasfd")
  <div id="chartContainer1" style="height: 370px; width: 100;"></div>
  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
-
+<p id="counter" style="visibility: hidden">0</p>
  
 
 <div id="form-main">
         <div id="form-div">
           <form class="form" id="form1">
-                <%
-                 function increase(x) {
-                    // dynamic[2] = dynamic[2] + 1;
-                    dynamic[2] = dynamic[2] + 1;
-                    console.log(dynamic[2]);
-                    console.log("asdfsad");
-                    // window.location.reload();
-                }
-                %>
+                <script>
+                    function increase() {
+                        var string_val = document.getElementById("counter").innerHTML;
+                        document.getElementById(string_val).style = "visibility: hidden";
+                        var val = parseInt(string_val);
+                        val += 1;
+                        document.getElementById("counter").innerHTML = JSON.stringify(val);
+                        document.getElementById(JSON.stringify(val)).style = "visibility: visible"
+                    }    
+                </script>
 
-            <p class="name">
-
-            
- 
-              Index : <%= dynamic[2] %>
-            
-                
-              
-              Datapoint : <%= dynamic[0][0].data%>
-              <!-- <% dynamic[2]++ %> -->
-              <!-- <%console.log("asdkfjhkasdhf", dynamic[0][0].data)%>
-                <h1>asdfsadfsaf sadffds</h1>
-                Blah:  -->
+            <p class="name" id="0" style="visibility: visible">
+                Datapoint : <%= dynamic[0][0].data%>
+            </p>
+            <p class="name" id="1" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][1].data%>
+            </p>
+            <p class="name" id="2" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][2].data%>
+            </p>
+            <p class="name" id="3" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][3].data%>
+            </p>
+            <p class="name" id="4" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][4].data%>
             </p>
 
             <!-- <% for (var i =1; i <=10;  i++ ) { %>
@@ -187,7 +189,7 @@ console.log("sadfjasfd")
             <br><br>
 
             <div class="submit">
-              <button onclick="<%=increase(dynamic[2])%>" type="submit" value="SEND" id="button-blue">Submit</button>
+              <button onclick="increase()" type="submit" value="SEND" id="button-blue">Submit</button>
               <div class="ease"></div>
             </div>
           </form>
