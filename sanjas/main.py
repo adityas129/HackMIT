@@ -8,7 +8,15 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-def run_sagemaker():
+modified = 0
+can_train = False
+train_if_greater_than = 3
+
+def run_sagemaker(client):
+
+    assert can_train == True
+    can_train = False
+    modified = 0
     sess = sagemaker.Session()
 
     # role = get_execution_role()
@@ -69,7 +77,7 @@ def run_sagemaker():
     bt_model.fit(inputs=data_channels, logs=True)
 
     print("here 1")
-    text_classifier = bt_model.deploy(initial_instance_count = 1,instance_type = 'ml.m4.xlarge')
+    text_classifier = bt_model.deploy(initial_instance_count = 1, instance_type = 'ml.m4.xlarge')
 
     sentences = ["I like everything",
                 "Why are we like this"]
@@ -82,7 +90,29 @@ def run_sagemaker():
     predictions = json.loads(response.decode('utf-8'))
     print(json.dumps(predictions, indent=2))
     sess.delete_endpoint(text_classifier.endpoint)
+    can_train = True
     print("DONE with sagemaker! ")
+
+
+def get_unlabeled(client):
+    collection = client.collection('data1')
+    result_unlabeled = list(collection.get({"is_labeled":"false"}))
+    print("Unlabeled: ", result_unlabeled)
+    return result_unlabeled
+
+
+def update_dataset(client):
+    # TODO: Use Arjun's code
+    pass  
+
+def action_modified(client):
+    modified += 1
+    if modified >= train_if_greater_than and train == True:
+        print("Will train! Modified is ", modified)
+        update_dataset(client)
+        run_sagemaker(client)
+
+
 
 def listen_for_changes(client):
     collection = client.collection('data1')
@@ -95,6 +125,7 @@ def listen_for_changes(client):
                 print("collection has these elements: ", list(collection.get()))
             elif change.type.name == 'MODIFIED':
                 print(u'Modified : {}'.format(change.document.id))
+                action_modified(client)
                 
             elif change.type.name == 'REMOVED':
                 print(u'Removed : {}'.format(change.document.id))
