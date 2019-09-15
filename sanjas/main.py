@@ -1,21 +1,31 @@
+import sys
+sys.path.insert(0, "../python_functions")
 import sagemaker
 from sagemaker import get_execution_role
 import json
 import boto3
 import time
 
+from create_ml_files import run_all
+
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
+
+global modified
 modified = 0
-can_train = False
+global can_train
+can_train = True
+global train_if_greater_than
 train_if_greater_than = 3
 
 def run_sagemaker(client):
 
+    global can_train
     assert can_train == True
     can_train = False
+    global modified
     modified = 0
     sess = sagemaker.Session()
 
@@ -78,36 +88,62 @@ def run_sagemaker(client):
 
     print("here 1")
     text_classifier = bt_model.deploy(initial_instance_count = 1, instance_type = 'ml.m4.xlarge')
+    try:
+        all_unlabeled = get_unlabeled(client)
+        all_text = [datum.to_dict()["data"] for datum in all_unlabeled]
+        # sentences = ["I like everything",
+        #             "Why are we like this"]
 
-    sentences = ["I like everything",
-                "Why are we like this"]
+        payload = {"instances" : all_text,
+                   "configuration": {"k": 1}}
 
-    payload = {"instances" : sentences,
-               "configuration": {"k": 2}}
+        response = text_classifier.predict(json.dumps(payload))
+        response = json.loads(response.decode('utf-8'))
 
-    response = text_classifier.predict(json.dumps(payload))
+        print("PAYLOAD: ", type(response))
+        print(response)
 
-    predictions = json.loads(response.decode('utf-8'))
-    print(json.dumps(predictions, indent=2))
-    sess.delete_endpoint(text_classifier.endpoint)
+    except Exception as e:
+        raise e
+    finally:
+        sess.delete_endpoint(text_classifier.endpoint)
+    i2s_dict = client.collection("meta_data1").document("i2s").get().to_dict()
+    all_predicted = []
+    for idx in range(len(all_unlabeled)):
+        update_lab = response[idx]['label'][0].split('_')[-1]
+        update_conf = response[idx]['pred'][0]
+
+        client.collection("data1").document(all_unlabeled[idx].id).update({"prediction_label": i2s_dict[update_val],
+                                                                            "prediction_confidence": update_conf}) 
+
+
+    # print(json.dumps(predictions, indent=2))
     can_train = True
     print("DONE with sagemaker! ")
 
 
 def get_unlabeled(client):
     collection = client.collection('data1')
-    result_unlabeled = list(collection.get({"is_labeled":"false"}))
-    print("Unlabeled: ", result_unlabeled)
+    result_unlabeled = list(collection.where("is_labeled", "==", False).stream())
     return result_unlabeled
 
+def get_labeled(client):
+    collection = client.collection('data1')
+    result_labeled = list(collection.where("is_labeled", "==", True).stream())
+    return result_labeled
 
 def update_dataset(client):
-    # TODO: Use Arjun's code
-    pass  
+    run_all(client)
+      
 
 def action_modified(client):
+    global modified
+    global can_train
+    global train_if_greater_than
+    total_lab_doc = len(get_labeled(client))
+
     modified += 1
-    if modified >= train_if_greater_than and train == True:
+    if modified >= train_if_greater_than and can_train == True and total_lab_doc > 15:
         print("Will train! Modified is ", modified)
         update_dataset(client)
         run_sagemaker(client)
@@ -122,10 +158,10 @@ def listen_for_changes(client):
         for change in changes:
             if change.type.name == 'ADDED':
                 print(u'New : {}'.format(change.document.id))
-                print("collection has these elements: ", list(collection.get()))
+                action_modified(client)
+ # TODO put this in modified!
             elif change.type.name == 'MODIFIED':
                 print(u'Modified : {}'.format(change.document.id))
-                action_modified(client)
                 
             elif change.type.name == 'REMOVED':
                 print(u'Removed : {}'.format(change.document.id))

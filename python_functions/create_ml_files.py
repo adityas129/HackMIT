@@ -146,8 +146,8 @@ def run_all(client):
 
     data = get_data(client)
     for train_data, test_data in split_data(client, data, 1):
-	    train_file = create_file(train_data, "train.txt")
-	    test_file = create_file(test_data, "test.txt")
+	    train_file = create_file(train_data, "../sanjas/dummy.train")
+	    test_file = create_file(test_data, "../sanjas/dummy.test")
 
 	    print(train_file)
 	    print(test_file)
