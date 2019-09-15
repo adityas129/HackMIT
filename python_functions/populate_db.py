@@ -12,7 +12,7 @@ labels = ["Neutral", "Positive", "Negative"]
 df = pd.read_csv("clean.csv")
 data = df["text"].tolist()
 
-for tweet in data[:5]:
+for tweet in data[:30]:
 	big_dict = {}
 	big_dict["data"] = tweet
 	big_dict["label_distribution"] = {}

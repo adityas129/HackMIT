@@ -10,10 +10,7 @@ from firebase_admin import firestore
 
 
 
-def get_data():
-	cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
-	firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
-	client = firestore.client()
+def get_data(client):
 
 	data1 = client.collection("data1")
 	docs = data1.where("is_labeled", "==", True).stream()
@@ -36,12 +33,13 @@ def get_data():
 	return big_data_dict
 
 
-def split_data(data, n=1):
+def split_data(client, data, n=1):
 	"""
 	Specifications:
 	    Splits data into n stratified samples (1 by default)
 	
 	Args:
+	    client (TYPE): ...
 	    data (dict): {data:label}
 	    n (int, optional): number of splits
 	
@@ -51,11 +49,6 @@ def split_data(data, n=1):
 
 	
 	data_points, labels = zip(*data.items())
-
-	#Get s2i dict
-	cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
-	firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
-	client = firestore.client()
 
 	#Dict to enumerate labels
 	enumeration = client.collection("meta_data1").document("s2i").get().to_dict()
@@ -145,16 +138,16 @@ def create_file(data, filepath):
 
 # 	return 
 
-def run_all():
+def run_all(client):
     """Specifications:
     Get all labeled docs and create train and test files from them. 
     Will throw an error if not enough labels in each class.
     """
 
-    data = get_data()
-    for train_data, test_data in split_data(data,1):
-	    train_file = create_file(train_data)
-	    test_file = create_file(test_data)
+    data = get_data(client)
+    for train_data, test_data in split_data(client, data, 1):
+	    train_file = create_file(train_data, "train.txt")
+	    test_file = create_file(test_data, "test.txt")
 
 	    print(train_file)
 	    print(test_file)
@@ -175,8 +168,11 @@ if __name__ == "__main__":
 	# 	test_file = create_file(y, "test.txt")
 	# 	print("Training File:",train_file)
 	# 	print("Testing File:",test_file)
+	cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
+	firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
+	client = firestore.client()
 
-	run_all()
+	run_all(client)
 
 
 
