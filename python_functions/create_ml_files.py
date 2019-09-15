@@ -156,7 +156,7 @@ def run_all(client):
 
     for file_ in files:
     	if os.path.isfile(file_):
-    		os.remove(file)
+    		os.remove(file_)
 
     data = get_data(client)
     for train_data, test_data in split_data(client, data, 1):
