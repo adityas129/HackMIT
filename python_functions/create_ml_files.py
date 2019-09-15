@@ -152,6 +152,11 @@ def run_all(client):
     Get all labeled docs and create train and test files from them. 
     Will throw an error if not enough labels in each class.
     """
+    files = ["../sanjas/dummy.train", "../sanjas/dummy.test"]
+    
+    for file in files:
+    	if os.path.isfile():
+    		os.remove(file)
 
     data = get_data(client)
     for train_data, test_data in split_data(client, data, 1):
