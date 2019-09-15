@@ -1,4 +1,4 @@
-var ip_address = '10.189.116.192';
+var ip_address = '18.20.216.61';
 
 var http = require("http");
 var fs = require('fs');
