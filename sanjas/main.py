@@ -5,23 +5,25 @@ from sagemaker import get_execution_role
 import json
 import boto3
 import time
+import re
 
 from create_ml_files import run_all
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-
+import spacy
+from gensim.utils import simple_preprocess
 
 global modified
 modified = 0
 global can_train
 can_train = True
 global train_if_greater_than
-train_if_greater_than = 3
+train_if_greater_than = 5
 
 def run_sagemaker(client):
-
+    print("Starting SageMaker...")
     global can_train
     assert can_train == True
     can_train = False
@@ -39,8 +41,6 @@ def run_sagemaker(client):
 
     s3_output_location = 's3://{}/{}/output'.format(bucket, prefix)
     region_name = boto3.Session().region_name
-
-    print("Here 0")
 
     container = sagemaker.amazon.amazon_estimator.get_image_uri(region_name, "blazingtext", "latest")
     print('Using SageMaker BlazingText container: {} ({})'.format(container, region_name))
@@ -61,7 +61,6 @@ def run_sagemaker(client):
     validation_data = sagemaker.session.s3_input(s3_validation_data, distribution='FullyReplicated', 
                                  content_type='text/plain', s3_data_type='S3Prefix')
     data_channels = {'train': train_data, 'validation': validation_data}
-    print("HERE 0.5")
 
     bt_model = sagemaker.estimator.Estimator(container,
                                              role, 
@@ -86,11 +85,21 @@ def run_sagemaker(client):
 
     bt_model.fit(inputs=data_channels, logs=True)
 
-    print("here 1")
     text_classifier = bt_model.deploy(initial_instance_count = 1, instance_type = 'ml.m4.xlarge')
     try:
         all_unlabeled = get_unlabeled(client)
-        all_text = [datum.to_dict()["data"] for datum in all_unlabeled]
+        all_text = []
+        for datum in all_unlabeled:
+            dict_ = datum.to_dict()
+            text = dict_["data"]
+            text = re.sub(r'\n', " ", text)
+            text = lemmatizer(text)
+            text = " ".join(simple_preprocess(text))
+            all_text.append(text)
+
+
+
+        #all_text = [datum.to_dict()["data"] for datum in all_unlabeled]
         # sentences = ["I like everything",
         #             "Why are we like this"]
 
@@ -100,7 +109,7 @@ def run_sagemaker(client):
         response = text_classifier.predict(json.dumps(payload))
         response = json.loads(response.decode('utf-8'))
 
-        print("PAYLOAD: ", type(response))
+        print("Predicted labels : ", type(response))
         print(response)
 
     except Exception as e:
@@ -110,16 +119,20 @@ def run_sagemaker(client):
     i2s_dict = client.collection("meta_data1").document("i2s").get().to_dict()
     all_predicted = []
     for idx in range(len(all_unlabeled)):
-        update_lab = response[idx]['label'][0].split('_')[-1]
-        update_conf = response[idx]['pred'][0]
 
-        client.collection("data1").document(all_unlabeled[idx].id).update({"prediction_label": i2s_dict[update_val],
+        update_lab = response[idx]['label'][0].split('_')[-1]
+        # print("update lab: ", update_lab)
+        assert update_lab in ["0", "1", "2"]
+        update_conf = response[idx]['prob'][0]
+        resolved = resolve(client, update_lab)
+        # print("resolved ", resolved)
+        client.collection("data1").document(all_unlabeled[idx].id).update({"prediction_label": resolved,
                                                                             "prediction_confidence": update_conf}) 
 
 
     # print(json.dumps(predictions, indent=2))
     can_train = True
-    print("DONE with sagemaker! ")
+    print("SageMaker Session over! ")
 
 
 def get_unlabeled(client):
@@ -134,6 +147,15 @@ def get_labeled(client):
 
 def update_dataset(client):
     run_all(client)
+
+
+def lemmatizer(text):
+    nlp = spacy.load('en')
+    sent = []
+    doc = nlp(text)
+    for word in doc:
+        sent.append(word.lemma_)
+    return " ".join(sent)
       
 
 def action_modified(client):
@@ -144,7 +166,7 @@ def action_modified(client):
 
     modified += 1
     if modified >= train_if_greater_than and can_train == True and total_lab_doc > 15:
-        print("Will train! Modified is ", modified)
+        print("Will start training, number of modified datapoints: ", modified)
         update_dataset(client)
         run_sagemaker(client)
 
@@ -157,7 +179,7 @@ def listen_for_changes(client):
 
         for change in changes:
             if change.type.name == 'ADDED':
-                print(u'New : {}'.format(change.document.id))
+                print(u'New datapoints: {}'.format(change.document.id))
                 action_modified(client)
  # TODO put this in modified!
             elif change.type.name == 'MODIFIED':
@@ -171,13 +193,23 @@ def listen_for_changes(client):
     # Watch the collection query
     query_watch = col_query.on_snapshot(on_snapshot)
 
+def resolve(client, int_label):
+    i2s_dict = client.collection("meta_data1").document("i2s").get().to_dict()
+    str_label = i2s_dict[int_label]
+
+    return str_label
+
+
+
 if __name__ == "__main__":
 
     cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
     firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
     client = firestore.client()
-    print("database work till here")
+    print("Starting to listen for changes...")
     listen_for_changes(client)
     while True:
         time.sleep(1)
+
+    # print(resolve(client, "1"))
 
