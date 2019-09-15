@@ -3,7 +3,37 @@ import re
 from sklearn.model_selection import StratifiedShuffleSplit
 import pickle
 import os
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
+
+
+
+def get_data():
+	cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
+	firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
+	client = firestore.client()
+
+	data1 = client.collection("data1")
+	docs = data1.where("is_labeled", "==", True).stream()
+
+	big_data_dict = {}
+	for doc in docs:
+		data_dict = doc.to_dict()
+		label_dist = data_dict["label_distribution"] 
+		label_max = None
+		freq = -1
+		for k in label_dist.keys():
+			if label_dist[k] > freq:
+				freq = label_dist[k]
+				label_max = k
+
+		big_data_dict[data_dict["data"]] = label_max			
+
+
+	#print(big_data_dict)
+	return big_data_dict
 
 
 def split_data(data, n=1):
@@ -21,13 +51,17 @@ def split_data(data, n=1):
 
 	
 	data_points, labels = zip(*data.items())
-	label_to_number = {label: i for i, label in enumerate(set(labels), 0)}
 
-	#Save dictionary to resolve labels later on 
-	with open(".resolve_labels.pickle", "wb") as f:
-		pickle.dump(label_to_number, f, protocol=pickle.HIGHEST_PROTOCOL)
+	#Get s2i dict
+	cred = credentials.Certificate("minerva-7ae74-firebase-adminsdk-judw4-1dad1c53d1.json")
+	firebase_admin.initialize_app(cred, {'databaseURL': 'https://minerva-7ae74.firebaseio.com/'})
+	client = firestore.client()
 
-	labels = [label_to_number[label] for label in labels]
+	#Dict to enumerate labels
+	enumeration = client.collection("meta_data1").document("s2i").get().to_dict()
+
+
+	labels = [enumeration[label] for label in labels]
 	sss = StratifiedShuffleSplit(n_splits=n, test_size=0.3, random_state=0)
 	sss.get_n_splits(data_points, labels)
 
@@ -101,13 +135,48 @@ def create_file(data, filepath):
 
 	return filepath
 
+
+# def enumerate_labels(all_labels):
+
+# 	label_to_number = {label: i for i, label in enumerate(set(all_labels), 0)}
+# 	#Save dictionary to resolve labels later on 
+# 	with open(".resolve_labels.pickle", "wb") as f:
+# 		pickle.dump(label_to_number, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+# 	return 
+
+def run_all():
+    """Specifications:
+    Get all labeled docs and create train and test files from them. 
+    Will throw an error if not enough labels in each class.
+    """
+
+    data = get_data()
+    for train_data, test_data in split_data(data,1):
+	    train_file = create_file(train_data)
+	    test_file = create_file(test_data)
+
+	    print(train_file)
+	    print(test_file)
+
+    return train_file, test_file
+
+
+
 if __name__ == "__main__":
-	data = {"cat": "good", "dog": "bad", "fish": "good", "moose": "bad"}
-	for x,y in split_data(data):
-		train_file = create_file(x, "train.txt")
-		test_file = create_file(y, "test.txt")
-		print("Training File:",train_file)
-		print("Testing File:",test_file)
+	# labels = ["Positive", "Negative", "Neutral"]
+	# enumerate_labels(labels)
+	# data = {"cat": "Positive", "dog": "Neutral", "fish": "Negative", 
+	# 	"moose": "Positive", "sanja": "Negative", "arjun": "Neutral",
+	# 	"aditya": "Negative", "sanzeed": "Neutral", "arjunisa": "Positive"}
+
+	# for x,y in split_data(data):
+	# 	train_file = create_file(x, "train.txt")
+	# 	test_file = create_file(y, "test.txt")
+	# 	print("Training File:",train_file)
+	# 	print("Testing File:",test_file)
+
+	run_all()
 
 
 
