@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+    <stylesheet<link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+    
+    <style>
+        body {
+		text-align: center;
+		padding: 100px 0 0 0;
+		color: #fff;
+		background: #1d1f20;
+    }   
+    </style>
+    <script>
+  console.log("NONLADASKNONLADASKNONLADASKNONLADASKNONLADASKNONLADASKNONLADASKNONLADASK");
+ 
+  function ObjectLength( object ) {
+    var length = 0;
+    for( var key in object ) {
+        if( object.hasOwnProperty(key) ) {
+            ++length;
+        }
+    }
+    return length;
+};
+console.log("sadfjasfd")
+
+
+  var all_data = "<%= dynamic %>"; 
+
+  var negative= "<%= dynamic[1].negative_c %>";
+  var positive= "<%= dynamic[1].positive_c %>";
+  var neutral= "<%= dynamic[1].neutral_c %>";
+//   var index = "<%= dynamic[2] %>"
+  console.log(negative, positive, neutral);
+
+//   console.log('neutral',JSON.stringify(neutral));
+//   console.log('positive',JSON.stringify(positive));
+
+//   <p class="name">
+//               asdflkjsadfljasdlfaks;h : %= dynamic[0].data%>;
+//     </p>
+  window.onload = function () {
+  
+      var chart = new CanvasJS.Chart("chartContainer", {
+         theme: "dark2", 
+
+          title: {
+              text: "Database Distribution"
+          },
+          axisY: {
+              title: "Frequencies",
+          },
+          data: [{
+              type: "column",	
+              yValueFormatString: "###",
+              indexLabel: "{y}",
+              dataPoints: [
+                  { label: "Negative", y: negative },
+                  { label: "Neutral", y: neutral },
+                  { label: "Positive", y: positive },
+
+              ]
+          }]
+      });
+      function updateChart() {
+        console.log(negative, positive, neutral)
+
+          var boilerColor, deltaY, yVal;
+          var dps = chart.options.data[0].dataPoints;
+          for (var i = 0; i < dps.length; i++) {
+            if(i==0){
+                
+                yVal = parseInt(negative)
+                boilerColor = "#ADD8E6";
+                dps[i] = {label: "Negative " , y: yVal, color: boilerColor};
+            }
+            if(i==1){
+                yVal = parseInt(neutral)
+                boilerColor = "#ADD8E6";
+                dps[i] = {label: "Neutral " , y: yVal, color: boilerColor};
+            }
+            if(i==2){
+                yVal = parseInt(positive)
+                boilerColor = "#ADD8E6";
+                dps[i] = {label: "Positive ", y: yVal, color: boilerColor};
+            }
+
+          }
+          chart.options.data[0].dataPoints = dps; 
+          chart.render();
+      };
+      updateChart();
+      setInterval(function() {updateChart()}, 500);
+
+    
+    data_negative = parseInt("<%= dynamic[0][0].label_distribution.Negative %>");
+    data_neutral = parseInt("<%= dynamic[0][0].label_distribution.Neutral %>");
+    data_positive = parseInt("<%= dynamic[0][0].label_distribution.Positive %>");
+    total = data_negative + data_neutral + data_positive
+
+      var pie_chart = new CanvasJS.Chart("chartContainer1", {
+        theme: "dark2", 
+          exportEnabled: true,
+          animationEnabled: true,
+          title: {
+              text: "Label distribution for current datapoint" //dynamic according to the label that the user is in
+          },
+          data: [{
+              type: "pie",
+              startAngle: 25,
+              toolTipContent: "<b>{label}</b>: {y}%",
+              showInLegend: "true",
+              legendText: "{label}",
+              indexLabelFontSize: 16,
+              indexLabel: "{label} - {y}%",
+              dataPoints: [
+                  { y: 100 * data_negative / total , label: "negative"},
+                  { y: 100 * data_neutral / total, label: "neutral" },
+                  { y: 100 * data_positive / total , label: "positive" }
+              ]
+          }]
+      });
+      
+      pie_chart.render();
+       
+    }
+      
+      </script>
+ <div id="chartContainer" style="height: 370px; width: 100;"></div>
+    </br>
+</br>
+</br>
+</br>
+ <div id="chartContainer1" style="height: 370px; width: 100;"></div>
+ <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<p id="counter" style="visibility: hidden">0</p>
+ 
+
+<div id="form-main">
+        <div id="form-div">
+          <form class="form" id="form1">
+                <script>
+                    function increase() {
+                        var string_val = document.getElementById("counter").innerHTML;
+                        document.getElementById(string_val).style = "visibility: hidden";
+                        var val = parseInt(string_val);
+                        val += 1;
+                        document.getElementById("counter").innerHTML = JSON.stringify(val);
+                        document.getElementById(JSON.stringify(val)).style = "visibility: visible"
+                    }    
+                </script>
+
+            <p class="name" id="0" style="visibility: visible">
+                Datapoint : <%= dynamic[0][0].data%>
+            </p>
+            <p class="name" id="1" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][1].data%>
+            </p>
+            <p class="name" id="2" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][2].data%>
+            </p>
+            <p class="name" id="3" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][3].data%>
+            </p>
+            <p class="name" id="4" style="visibility: hidden">
+              Datapoint : <%= dynamic[0][4].data%>
+            </p>
+
+            <!-- <% for (var i =1; i <=10;  i++ ) { %>
+                <% dynamic[2]++ %>
+                <br/>  <%= dynamic[2] %> 
+                <%#  will output the numbers 1-10 %>
+            <% } %> -->
+                
+
+            <p class="datapoint">
+                    <select name="datapoint"> 
+                        <!-- datapoint access -->
+                            <option value="label_option_1">Negative</option>
+                            <option value="label_option_2">Neutral</option>
+                            <option value="label_option_3">Positive</option>
+                          </select>
+            </p>
+            <br><br>
+
+            <div class="submit">
+              <button onclick="increase()" type="submit" value="SEND" id="button-blue">Submit</button>
+              <div class="ease"></div>
+            </div>
+          </form>
+            
+        </div>
+    </div>
+
+
+
+</body>
+</html>
